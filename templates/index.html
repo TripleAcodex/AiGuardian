@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Guardian</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* 60% — Deep anthracite matte */
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #242424;
+            --bg-elevated: #2e2e2e;
+            --bg-surface: rgba(42, 42, 42, 0.85);
+
+            /* 30% — Off-white */
+            --text-primary: #f0ede8;
+            --text-secondary: #b8b4ae;
+            --text-tertiary: #787470;
+
+            /* 10% — Vibrant orange */
+            --accent: #ff6b2c;
+            --accent-glow: rgba(255, 107, 44, 0.15);
+            --accent-hover: #ff8a55;
+
+            /* Semantic */
+            --success: #34c759;
+            --danger: #ff3b30;
+            --danger-glow: rgba(255, 59, 48, 0.12);
+
+            /* Borders */
+            --border: rgba(255, 255, 255, 0.06);
+            --border-accent: rgba(255, 107, 44, 0.3);
+
+            /* Typography */
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 40px;
+
+            /* Radius */
+            --radius-sm: 6px;
+            --radius-md: 12px;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ── Alert Overlay ── */
+        .alert-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .alert-overlay.active {
+            opacity: 1;
+        }
+
+        .alert-overlay .alert-border {
+            position: absolute;
+            inset: 0;
+            border: 3px solid var(--danger);
+            opacity: 0;
+        }
+
+        .alert-overlay.active .alert-border {
+            animation: alert-border-pulse 0.8s ease-in-out infinite;
+        }
+
+        @keyframes alert-border-pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; border-width: 5px; }
+        }
+
+        .alert-text {
+            position: absolute;
+            bottom: var(--space-xl);
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            color: var(--danger);
+            background: rgba(255, 59, 48, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 10px 36px;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(255, 59, 48, 0.25);
+            white-space: nowrap;
+        }
+
+        /* ── Top Bar ── */
+        .topbar {
+            height: 52px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--space-lg);
+            position: relative;
+            z-index: 10;
+        }
+
+        .topbar__brand {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .topbar__dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .topbar__dot--alert {
+            background: var(--danger);
+            box-shadow: 0 0 12px var(--danger);
+            animation: pulse-danger 0.6s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        @keyframes pulse-danger {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.3); }
+        }
+
+        .topbar__title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            color: var(--text-primary);
+        }
+
+        .topbar__version {
+            font-size: 0.6rem;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            background: var(--bg-elevated);
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.05em;
+        }
+
+        .topbar__center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .status-chip {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            padding: 5px 18px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .status-chip--ok {
+            color: var(--success);
+            background: rgba(52, 199, 89, 0.1);
+            border: 1px solid rgba(52, 199, 89, 0.2);
+        }
+
+        .status-chip--alert {
+            color: var(--danger);
+            background: var(--danger-glow);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            animation: blink-chip 0.8s ease-in-out infinite;
+        }
+
+        @keyframes blink-chip {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .topbar__meta {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+
+        .topbar__uptime {
+            font-family: var(--mono);
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 0.05em;
+        }
+
+        .topbar__fps {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--text-tertiary);
+        }
+
+        /* ── Main Layout ── */
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            height: calc(100vh - 52px);
+        }
+
+        /* ── Video Feed ── */
+        .feed {
+            position: relative;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-right: 1px solid var(--border);
+        }
+
+        .feed__stream {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .feed__badge {
+            position: absolute;
+            top: var(--space-md);
+            left: var(--space-md);
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            color: var(--danger);
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid rgba(255, 59, 48, 0.2);
+            padding: 3px 12px;
+            border-radius: 4px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* ── Stats Panel ── */
+        .panel {
+            background: var(--bg-secondary);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+
+        .panel::-webkit-scrollbar { display: none; }
+
+        .panel__section {
+            padding: var(--space-lg);
+        }
+
+        .panel__heading {
+            font-size: 0.62rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: var(--space-lg);
+        }
+
+        .panel__divider {
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ── Stat Rows ── */
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stat:last-of-type {
+            border-bottom: none;
+        }
+
+        .stat__label {
+            font-size: 0.78rem;
+            font-weight: 400;
+            color: var(--text-tertiary);
+        }
+
+        .stat__value {
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: var(--mono);
+            color: var(--text-primary);
+        }
+
+        .stat__value--ok { color: var(--success); }
+        .stat__value--accent { color: var(--accent); }
+        .stat__value--danger { color: var(--danger); }
+        .stat__value--dim {
+            font-size: 0.75rem;
+            font-weight: 400;
+            font-family: var(--font);
+            color: var(--text-secondary);
+            max-width: 160px;
+            text-align: right;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* ── Controls ── */
+        .control {
+            margin-bottom: var(--space-lg);
+        }
+
+        .control:last-child {
+            margin-bottom: 0;
+        }
+
+        .control__label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .control__value {
+            font-family: var(--mono);
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 0.85rem;
+        }
+
+        .control__slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 2px;
+            background: var(--bg-elevated);
+            border-radius: 1px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .control__slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid var(--bg-secondary);
+            box-shadow: 0 0 0 1px var(--accent);
+            transition: transform 0.15s ease;
+        }
+
+        .control__slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .control__slider::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid var(--bg-secondary);
+        }
+
+        .control__range {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.62rem;
+            color: var(--text-tertiary);
+            margin-top: var(--space-xs);
+        }
+
+        .control__input {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .control__input:focus {
+            border-color: var(--accent);
+        }
+
+        .control__btn {
+            margin-top: var(--space-sm);
+            width: 100%;
+            padding: 9px 0;
+            background: var(--accent);
+            color: #fff;
+            font-family: var(--font);
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+
+        .control__btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .control__btn:active {
+            transform: scale(0.97);
+        }
+
+        .control__btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ── Footer ── */
+        .panel__footer {
+            margin-top: auto;
+            padding: var(--space-md) var(--space-lg);
+            font-size: 0.58rem;
+            color: var(--text-tertiary);
+            text-align: center;
+            letter-spacing: 0.05em;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <!-- Alert overlay (hidden by default) -->
+    <div class="alert-overlay" id="alertOverlay">
+        <div class="alert-border"></div>
+        <span class="alert-text">THREAT DETECTED</span>
+    </div>
+
+    <!-- Top bar -->
+    <header class="topbar">
+        <div class="topbar__brand">
+            <div class="topbar__dot" id="liveDot"></div>
+            <h1 class="topbar__title">AI GUARDIAN</h1>
+            <span class="topbar__version">v2.0</span>
+        </div>
+        <div class="topbar__center">
+            <span class="status-chip status-chip--ok" id="statusChip">MONITORING</span>
+        </div>
+        <div class="topbar__meta">
+            <span class="topbar__uptime" id="uptime">00:00:00</span>
+            <span class="topbar__fps" id="fpsDisplay">-- FPS</span>
+        </div>
+    </header>
+
+    <!-- Main layout -->
+    <main class="layout">
+        <!-- Video feed -->
+        <section class="feed">
+            <img alt="Live Feed" class="feed__stream" id="feedImg" />
+            <div class="feed__badge">LIVE</div>
+        </section>
+
+        <!-- Stats sidebar -->
+        <aside class="panel">
+            <div class="panel__section">
+                <h2 class="panel__heading">Realtime</h2>
+
+                <div class="stat">
+                    <span class="stat__label">Status</span>
+                    <span class="stat__value stat__value--ok" id="sStatus">Normal</span>
+                </div>
+                <div class="stat">
+                    <span class="stat__label">People</span>
+                    <span class="stat__value" id="sPeople">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat__label">Confidence</span>
+                    <span class="stat__value" id="sConf">0.0%</span>
+                </div>
+                <div class="stat">
+                    <span class="stat__label">Motion</span>
+                    <span class="stat__value" id="sMotion">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat__label">Incidents</span>
+                    <span class="stat__value stat__value--accent" id="sIncidents">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat__label">Analysis</span>
+                    <span class="stat__value stat__value--dim" id="sReason">--</span>
+                </div>
+            </div>
+
+            <div class="panel__divider"></div>
+
+            <div class="panel__section">
+                <h2 class="panel__heading">Settings</h2>
+
+                <div class="control">
+                    <label class="control__label" for="threshSlider">
+                        Detection Threshold
+                        <span class="control__value" id="threshVal">50%</span>
+                    </label>
+                    <input type="range" class="control__slider" id="threshSlider"
+                           min="30" max="90" value="50" step="1" />
+                    <div class="control__range">
+                        <span>Sensitive</span>
+                        <span>Relaxed</span>
+                    </div>
+                </div>
+
+                <div class="control">
+                    <label class="control__label" for="cameraInput">Camera Source</label>
+                    <input type="text" class="control__input" id="cameraInput"
+                           value="0" placeholder="0, 1, or rtsp://..." />
+                    <button class="control__btn" id="cameraBtn">Apply</button>
+                </div>
+            </div>
+
+            <div class="panel__footer">
+                AI Guardian &mdash; School Safety System
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        const $ = id => document.getElementById(id);
+
+        // ── Uptime ──
+        let serverUptime = 0;
+
+        function formatUptime(seconds) {
+            const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+            const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+            const s = String(Math.floor(seconds % 60)).padStart(2, '0');
+            return h + ':' + m + ':' + s;
+        }
+
+        setInterval(() => {
+            serverUptime += 1;
+            $('uptime').textContent = formatUptime(serverUptime);
+        }, 1000);
+
+        // ── Stats Polling ──
+        async function poll() {
+            try {
+                const r = await fetch('/api/stats');
+                const s = await r.json();
+
+                // Sync uptime from server
+                if (s.uptime) serverUptime = s.uptime;
+
+                // People
+                $('sPeople').textContent = s.person_count ?? 0;
+
+                // Incidents
+                $('sIncidents').textContent = s.total_incidents ?? 0;
+
+                // Motion
+                $('sMotion').textContent = s.motion_speed ?? 0;
+
+                // Reason
+                $('sReason').textContent = s.reason || '--';
+
+                // FPS
+                $('fpsDisplay').textContent = (s.fps ?? '--') + ' FPS';
+
+                // Confidence
+                const conf = s.confidence ?? 0;
+                const confEl = $('sConf');
+                confEl.textContent = (conf * 100).toFixed(1) + '%';
+
+                const isAlert = s.is_violence;
+
+                // Confidence color
+                if (isAlert) {
+                    confEl.className = 'stat__value stat__value--danger';
+                } else if (conf > 0.3) {
+                    confEl.className = 'stat__value stat__value--accent';
+                } else {
+                    confEl.className = 'stat__value';
+                }
+
+                // Status text
+                const statusEl = $('sStatus');
+                statusEl.textContent = isAlert ? 'ALERT' : 'Normal';
+                statusEl.className = 'stat__value ' + (isAlert ? 'stat__value--danger' : 'stat__value--ok');
+
+                // Status chip
+                const chip = $('statusChip');
+                chip.textContent = isAlert ? 'THREAT DETECTED' : 'MONITORING';
+                chip.className = 'status-chip ' + (isAlert ? 'status-chip--alert' : 'status-chip--ok');
+
+                // Live dot
+                $('liveDot').className = isAlert ? 'topbar__dot topbar__dot--alert' : 'topbar__dot';
+
+                // Alert overlay
+                const overlay = $('alertOverlay');
+                if (isAlert) {
+                    overlay.classList.add('active');
+                } else {
+                    overlay.classList.remove('active');
+                }
+
+                // Sync threshold
+                const thr = s.threshold ?? 0.5;
+                $('threshVal').textContent = Math.round(thr * 100) + '%';
+
+            } catch (e) {
+                // Network error — keep last state
+            }
+        }
+
+        setInterval(poll, 800);
+        poll();
+
+        // ── Threshold Slider ──
+        const slider = $('threshSlider');
+        slider.addEventListener('input', () => {
+            $('threshVal').textContent = slider.value + '%';
+        });
+
+        let sliderTimeout;
+        slider.addEventListener('change', () => {
+            clearTimeout(sliderTimeout);
+            sliderTimeout = setTimeout(async () => {
+                await fetch('/api/threshold', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ value: slider.value / 100 })
+                });
+            }, 200);
+        });
+
+        // ── Camera Source ──
+        $('cameraBtn').addEventListener('click', async () => {
+            const src = $('cameraInput').value;
+            const btn = $('cameraBtn');
+            btn.textContent = 'APPLYING...';
+            btn.disabled = true;
+            try {
+                await fetch('/api/camera', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ source: src })
+                });
+                // Camera changed — polling will auto-update the feed
+            } catch (e) {}
+            btn.textContent = 'APPLY';
+            btn.disabled = false;
+        });
+
+        // Frame polling — 12 FPS, lighter than MJPEG streaming (less GPU contention)
+        let _prevFrameUrl = null;
+        async function _pollFrame() {
+            try {
+                const res = await fetch('/api/frame?t=' + Date.now());
+                if (!res.ok) { setTimeout(_pollFrame, 83); return; }
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                $('feedImg').src = url;
+                if (_prevFrameUrl) URL.revokeObjectURL(_prevFrameUrl);
+                _prevFrameUrl = url;
+            } catch (e) {}
+            setTimeout(_pollFrame, 83);
+        }
+        _pollFrame();
+    </script>
+</body>
+</html>

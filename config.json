@@ -1,0 +1,7 @@
+{
+    "camera_source": 0,
+    "confidence_threshold": 0.51,
+    "alert_cooldown": 3,
+    "telegram_token": "8557729682:AAHilV-LDCettvp-CP7l1JI076yD0chpOIc",
+    "telegram_chat_id": "919855212"
+}

@@ -1,0 +1,351 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* ── DARK ELEVATION SYSTEM (TINTED) ── */
+  --color-canvas: oklch(14% 0.01 220);
+  --color-surface: oklch(19% 0.015 220);
+  --color-elevated: oklch(24% 0.02 220);
+  --color-glass: rgba(255, 255, 255, 0.05);
+
+  /* ── SEMANTIC COLORS (OKLCH) ── */
+  --color-danger: oklch(65% 0.15 25);
+  --color-danger-glow: oklch(65% 0.15 25 / 0.15);
+  --color-safe: oklch(65% 0.14 145);
+  --color-accent: oklch(60% 0.25 220);
+
+  /* ── TEXT HIERARCHY ── */
+  --color-primary: #f8fafc;
+  --color-dim: #cbd5e1;
+  --color-muted: #94a3b8;
+
+  /* ── BORDERS ── */
+  --color-border: rgba(255, 255, 255, 0.06);
+
+  /* ── TYPOGRAPHY ── */
+  --font-heading: var(--font-geist-sans), system-ui, sans-serif;
+  --font-body: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+}
+
+/* ── BASE ── */
+html { scroll-padding-top: 80px; }
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  cursor: none !important;
+}
+
+a, button, input, textarea, [data-cursor-hover] {
+  cursor: none !important;
+}
+
+/* ── INTERACTIVE HOVER GLOW ── */
+a:hover, button:hover {
+  text-shadow: 0 0 20px oklch(65% 0.15 25 / 0.3);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.04em;
+  font-family: var(--font-heading);
+}
+
+/* ── PREMIUM SAAS UTILITIES ── */
+.hairline-border {
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
+              inset 0 0 0 1px rgba(255, 255, 255, 0.02),
+              0 10px 40px -10px rgba(0,0,0,0.4);
+  border: none;
+}
+
+.hairline-border-subtle {
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.02),
+              inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  border: none;
+}
+
+.glass-panel {
+  background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.premium-glass-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.premium-glass-card:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border-color: rgba(255, 255, 255, 0.15);
+  border-top-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 0 40px oklch(65% 0.15 25 / 0.08);
+  transform: translateY(-2px);
+}
+
+.btn-premium {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(to bottom, var(--color-surface), var(--color-canvas));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.btn-premium::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.05), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+}
+
+.btn-premium:hover::before {
+  transform: translateX(100%);
+}
+
+.btn-premium:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 15px oklch(65% 0.15 25 / 0.15);
+}
+
+.text-glow {
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.text-glow-red {
+  text-shadow: 0 0 20px oklch(65% 0.15 25 / 0.2), 0 0 40px oklch(65% 0.15 25 / 0.05);
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-danger); border-radius: 2px; }
+
+/* ── SELECTION ── */
+::selection { background: oklch(65% 0.15 25 / 0.3); color: #fff; }
+
+/* ── NOISE TEXTURE OVERLAY (double layer) ── */
+.noise::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0.02;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  mix-blend-mode: overlay;
+}
+.noise::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0.015;
+  background: repeating-conic-gradient(rgba(255,255,255,0.01) 0% 25%, transparent 0% 50%) 0 0 / 2px 2px;
+  mix-blend-mode: overlay;
+}
+
+/* ── GRADIENT TEXT ── */
+.text-gradient-red {
+  background: linear-gradient(135deg, var(--color-danger) 0%, oklch(70% 0.14 25) 50%, oklch(75% 0.12 25) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.text-gradient-light {
+  background: linear-gradient(180deg, #FFFFFF 0%, rgba(255,255,255,0.7) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+/* ── HORIZONTAL RULE ── */
+.divider-red {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, oklch(65% 0.15 25 / 0.3), transparent);
+}
+
+/* ── 3D SCENE CONTAINER ── */
+.scene-container { isolation: isolate; }
+
+/* ── FORM INPUT STYLES ── */
+input[type="text"], input[type="email"], input[type="password"], input[type="number"], textarea {
+  border-color: var(--color-border) !important;
+  background: rgba(255,255,255,0.02) !important;
+  transition: all 0.3s ease !important;
+}
+input[type="text"]:hover, input[type="email"]:hover, input[type="password"]:hover, input[type="number"]:hover, textarea:hover {
+  border-color: var(--color-elevated) !important;
+  background: rgba(255,255,255,0.04) !important;
+}
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, input[type="number"]:focus, textarea:focus {
+  border-color: oklch(65% 0.15 25 / 0.5) !important;
+  box-shadow: 0 0 20px oklch(65% 0.15 25 / 0.1), inset 0 0 20px oklch(65% 0.15 25 / 0.03) !important;
+  background: oklch(65% 0.15 25 / 0.02) !important;
+}
+
+/* ── STRATEGIC WHITESPACE ── */
+.section-padding {
+  padding-top: 192px;
+  padding-bottom: 192px;
+}
+@media (max-width: 768px) {
+  .section-padding {
+    padding-top: 128px;
+    padding-bottom: 128px;
+  }
+}
+
+/* ── MONITOR EFFECT (for Demo section) ── */
+.monitor-float {
+  box-shadow:
+    0 25px 60px rgba(0,0,0,0.5),
+    0 0 80px oklch(65% 0.15 25 / 0.08),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.monitor-float:hover {
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.6),
+    0 0 100px oklch(65% 0.15 25 / 0.15),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+/* ── GSAP ANIMATION HELPERS ── */
+.gsap-reveal {
+  opacity: 0;
+  transform: translateY(40px);
+}
+.gsap-reveal-left {
+  opacity: 0;
+  transform: translateX(-40px);
+}
+.split-word {
+  display: inline-block;
+  overflow: hidden;
+}
+.split-word-inner {
+  display: inline-block;
+  transform: translateY(105%);
+}
+
+/* ── LIQUID GLASS ── */
+.liquid-glass {
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ── SHIMMER BUTTON (for CTA buttons) ── */
+.shimmer-btn {
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+              0 4px 14px 0 rgba(200, 30, 30, 0.39);
+  transition: all 0.3s ease;
+}
+.shimmer-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: none;
+}
+.shimmer-btn:hover {
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.4),
+              0 6px 20px 0 rgba(200, 30, 30, 0.45);
+  transform: translateY(-1px);
+}
+.shimmer-btn:hover::after {
+  left: 120%;
+  transition: left 0.6s ease;
+}
+
+/* ── SHIMMER HOVER (for nav links) ── */
+.shimmer-hover {
+  position: relative;
+  transition: color 0.3s ease;
+}
+.shimmer-hover::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-danger), transparent);
+  transition: width 0.3s ease;
+}
+.shimmer-hover:hover {
+  color: var(--color-primary);
+}
+.shimmer-hover:hover::after {
+  width: 100%;
+}
+
+/* ── INKY TYPOGRAPHY ── */
+.inky {
+  text-shadow:
+    0 0 1px oklch(90% 0 0 / 0.4),
+    0 0 3px oklch(90% 0 0 / 0.1);
+}
+
+/* ── SCAN LINE ANIMATION (Demo section only) ── */
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+.animate-scanline {
+  animation: scanline 6s linear infinite;
+}
+
+/* ── SECTION REVEAL (IntersectionObserver-based) ── */
+.section-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.section-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── REDUCED MOTION ── */
+@media (prefers-reduced-motion: reduce) {
+  .gsap-reveal,
+  .gsap-reveal-left {
+    opacity: 1;
+    transform: none;
+  }
+  .split-word-inner {
+    transform: none;
+  }
+  .section-reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── HIDE NEXT.JS DEV INDICATOR ── */
+nextjs-portal,
+[data-nextjs-dialog-overlay],
+[data-nextjs-toast] {
+  display: none !important;
+}
